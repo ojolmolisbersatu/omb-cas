@@ -8,10 +8,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
+    --bg: #eef0ea;
+    --card: #ffffff;
+    --card-line: #d9dcd2;
+    --lime: #6b8f00;
+    --lime-rgb: 107,143,0;
+    --teal: #2f6b65;
+    --text: #1c211a;
+    --muted: #5c6359;
+    --warn-bg: #fff1e8;
+    --warn-line: #e8622c;
+    --warn-text: #8a3512;
+  }
+  [data-theme="dark"]{
     --bg: #14181d;
     --card: #1d242c;
     --card-line: #2b343d;
     --lime: #d4f547;
+    --lime-rgb: 212,245,71;
     --teal: #6fb3ac;
     --text: #f2f0e8;
     --muted: #93a0a9;
@@ -27,6 +41,7 @@
     font-family: 'IBM Plex Sans', sans-serif;
     line-height: 1.5;
     padding: 0 0 48px;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   .wrap{ max-width: 620px; margin: 0 auto; padding: 0 20px; }
 
@@ -41,8 +56,22 @@
     position:absolute;
     top:-60px; right:-60px;
     width:180px; height:180px;
-    background: radial-gradient(circle, rgba(212,245,71,0.18), transparent 70%);
+    background: radial-gradient(circle, rgba(var(--lime-rgb),0.18), transparent 70%);
   }
+  .theme-toggle{
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    color: var(--muted);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12.5px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .theme-toggle:hover{ color: var(--text); }
   .wordmark{
     font-family:'Oswald', sans-serif;
     font-weight: 700;
@@ -249,6 +278,7 @@
 <body>
   <div class="wrap">
     <header>
+      <button id="theme-toggle" class="theme-toggle" type="button">🌙 Dark</button>
       <p class="wordmark">OMB Charge</p>
       <span class="tag">by Semilir Semarang</span>
       <p class="subtitle">Panduan singkat buat kamu yang mau ngecas motor listrik di titik charge OMB.</p>
@@ -345,6 +375,18 @@
       height: 150,
       colorDark: "#14181d",
       colorLight: "#ffffff"
+    });
+
+    var toggleBtn = document.getElementById("theme-toggle");
+    toggleBtn.addEventListener("click", function(){
+      var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if(isDark){
+        document.documentElement.removeAttribute("data-theme");
+        toggleBtn.textContent = "🌙 Dark";
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        toggleBtn.textContent = "☀️ Light";
+      }
     });
   </script>
 </body>
