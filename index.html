@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Pengecasan — OMB Charge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14181d;
+    --card: #1d242c;
+    --card-line: #2b343d;
+    --lime: #d4f547;
+    --teal: #6fb3ac;
+    --text: #f2f0e8;
+    --muted: #93a0a9;
+    --warn-bg: #2c1c14;
+    --warn-line: #e8622c;
+    --warn-text: #ffd9bd;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+    padding: 0 0 48px;
+  }
+  .wrap{ max-width: 620px; margin: 0 auto; padding: 0 20px; }
+
+  header{
+    padding: 40px 20px 28px;
+    border-bottom: 1px solid var(--card-line);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    top:-60px; right:-60px;
+    width:180px; height:180px;
+    background: radial-gradient(circle, rgba(212,245,71,0.18), transparent 70%);
+  }
+  .wordmark{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: 0.3px;
+    color: var(--lime);
+    margin: 0;
+    position: relative;
+  }
+  .tag{
+    display:inline-block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    border: 1px solid var(--card-line);
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .subtitle{
+    margin: 16px 0 0;
+    max-width: 46ch;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .contact-top{
+    margin: 20px 20px 0;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 6px;
+    padding: 16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .contact-top .ct-label{
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .contact-top .ct-number{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--lime);
+    letter-spacing: 0.5px;
+  }
+
+  .steps{
+    padding: 28px 20px 8px;
+    position: relative;
+  }
+  .step{
+    display:grid;
+    grid-template-columns: 34px 1fr;
+    gap: 16px;
+    position: relative;
+    padding-bottom: 30px;
+  }
+  .step:last-child{ padding-bottom: 0; }
+  .rail{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .num{
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1.5px solid var(--lime);
+    color: var(--lime);
+    font-family:'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink: 0;
+  }
+  .line{
+    width: 1.5px;
+    flex: 1;
+    background: var(--card-line);
+    margin-top: 4px;
+  }
+  .step:last-child .line{ display:none; }
+
+  .step h3{
+    margin: 4px 0 6px;
+    font-family:'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+  }
+  .step p{
+    margin: 0;
+    color: var(--muted);
+    font-size: 14.5px;
+  }
+
+  .bubble{
+    margin-top: 10px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-left: 3px solid var(--teal);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .bubble .label{
+    display:block;
+    font-size: 11.5px;
+    color: var(--teal);
+    margin-bottom: 4px;
+  }
+
+  .meter{
+    margin-top: 10px;
+    display:flex;
+    gap: 10px;
+  }
+  .meter div{
+    flex:1;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 4px;
+    padding: 10px 12px;
+  }
+  .meter span{
+    display:block;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .meter strong{
+    font-family:'Oswald', sans-serif;
+    font-size: 15px;
+    color: var(--lime);
+  }
+
+  .warn{
+    margin: 32px 20px 0;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 6px;
+    padding: 18px 18px;
+  }
+  .warn h4{
+    margin: 0 0 8px;
+    font-family:'Oswald', sans-serif;
+    font-size: 15px;
+    color: var(--warn-text);
+    font-weight: 600;
+  }
+  .warn p{
+    margin: 0;
+    font-size: 14px;
+    color: var(--warn-text);
+    opacity: 0.9;
+  }
+
+  footer{
+    margin: 32px 20px 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--card-line);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .contact-bottom{
+    margin: 32px 20px 0;
+    background: var(--card);
+    border: 1.5px solid var(--lime);
+    border-radius: 8px;
+    padding: 26px 20px;
+    text-align: center;
+  }
+  .contact-bottom .cb-label{
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .contact-bottom .cb-number{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--lime);
+    letter-spacing: 0.5px;
+    margin-bottom: 18px;
+  }
+  #qr-code{
+    display:inline-block;
+    background: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    line-height: 0;
+  }
+  .cb-qr-caption{
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="wordmark">OMB Charge</p>
+      <span class="tag">by Semilir Semarang</span>
+      <p class="subtitle">Panduan singkat buat kamu yang mau ngecas motor listrik di titik charge OMB.</p>
+    </header>
+
+    <div class="contact-top">
+      <div>
+        <div class="ct-label">Admin OMB Charge</div>
+        <div class="ct-number">0896-7205-6155</div>
+      </div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="rail"><div class="num">1</div><div class="line"></div></div>
+        <div>
+          <h3>Hubungi admin</h3>
+          <p>Kirim pesan ke admin dengan format berikut, sebutkan ID OMB atau nama kamu.</p>
+          <div class="bubble">
+            <span class="label">Format pesan</span>
+            MAU NGECAS— [ID OMB / Nama]
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">2</div><div class="line"></div></div>
+        <div>
+          <h3>Listrik dinyalakan</h3>
+          <p>Admin menyalakan aliran listrik dan mengirim angka kWh meter awal. Catat angka ini, jadi patokan hitungan tagihan.</p>
+          <div class="meter">
+            <div><span>kWh meter awal</span><strong>dari admin</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">3</div><div class="line"></div></div>
+        <div>
+          <h3>Colok & charge motor</h3>
+          <p>Sambungkan motor ke titik charge, tunggu sampai baterai terisi sesuai kebutuhan kamu.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">4</div><div class="line"></div></div>
+        <div>
+          <h3>Selesai charge, hubungi admin lagi</h3>
+          <p>Begitu pengecasan selesai, langsung kabari admin — jangan ditunda.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">5</div><div class="line"></div></div>
+        <div>
+          <h3>Admin catat kWh meter akhir</h3>
+          <p>Selisih antara kWh meter awal dan akhir jadi dasar hitungan biaya jasa charge kamu.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">6</div></div>
+        <div>
+          <h3>Terima nota & bayar</h3>
+          <p>Admin mengirim nota pembayaran beserta QRIS. Scan, bayar, selesai.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="warn">
+      <h4>Penting: selalu hubungi admin begitu selesai charge</h4>
+      <p>Kalau kamu enggak menghubungi admin setelah selesai, listrik tetap menyala dan tagihan kWh terus berjalan. Kalau pengguna berikutnya sempat memakai listrik yang masih nyala itu, tagihannya bisa ikut dibebankan ke kamu sebagai pengguna sebelumnya.</p>
+    </div>
+
+    <div class="contact-bottom">
+      <div class="cb-label">Hubungi admin OMB Charge</div>
+      <div class="cb-number">0896-7205-6155</div>
+      <div id="qr-code"></div>
+      <div class="cb-qr-caption">Scan untuk langsung chat WhatsApp admin</div>
+    </div>
+
+    <footer>
+      OMB Charge · Semilir Semarang
+    </footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    new QRCode(document.getElementById("qr-code"), {
+      text: "https://wa.me/message/JLY6I64X7B77B1",
+      width: 150,
+      height: 150,
+      colorDark: "#14181d",
+      colorLight: "#ffffff"
+    });
+  </script>
+</body>
+</html>
