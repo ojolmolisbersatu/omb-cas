@@ -125,7 +125,21 @@ async function load() {
   if (sig !== S.sig && !typing && !(ST.stream && document.getElementById("qv"))) { S.sig = sig; render(); } // tunda render saat pengguna sedang mengetik
 }
 
-var LOKASI = { nama: "SPKLU OMB Semilir", alamat: "Semilir, Kota Semarang", jam: "24 Jam", fasilitas: ["Toilet", "Parkir", "Warung"] }; // edit sesuai kondisi lokasi
+var LOKASI = { nama: "SPKLU OMB Semilir", alamat: "Semilir, Kota Semarang", jam: "24 Jam", fasilitas: ["Toilet", "Parkir", "Warung"], lat: null, lng: null }; // lat & lng: koordinat lokasi (contoh -6.9932, 110.4203). Selama kosong, peta tampil sebagai gambar hiasan // edit sesuai kondisi lokasi
+function driveImg(u) {
+  if (!u) return "";
+  var m = /\/d\/([\w-]+)/.exec(u) || /[?&]id=([\w-]+)/.exec(u);
+  return m && /drive\.google\.com/.test(u) ? "https://lh3.googleusercontent.com/d/" + m[1] : u;
+}
+async function loadLokasi() {
+  try {
+    var r = await sb.rpc("charge_stations_public"), x = r.data && r.data[0]; if (r.error || !x) return;
+    LOKASI.nama = x.name || LOKASI.nama; LOKASI.alamat = x.address || LOKASI.alamat;
+    if (x.open_hours) LOKASI.jam = x.open_hours === "00:00-00:00" ? "24 Jam" : x.open_hours;
+    LOKASI.foto = driveImg(x.photo_url); LOKASI.fasilitas = x.facilities || [];
+    if (x.lat != null && x.lng != null) { LOKASI.lat = Number(x.lat); LOKASI.lng = Number(x.lng); }
+  } catch (e) {}
+}
 function seenId() { try { return localStorage.getItem("omb_seen"); } catch (e) { return null; } }
 function topbar(t, act, v) { return '<div class="top">' + (act ? '<button data-act="' + act + '" data-v="' + (v || "") + '" aria-label="Kembali">' + ic("back") + '</button>' : '<i></i>') + '<b>' + t + '</b><i></i></div>'; }
 function mm(sec) { sec = Math.max(0, Math.round(sec)); return [sec / 3600 | 0, (sec % 3600) / 60 | 0, sec % 60].map(function (n) { return String(n).padStart(2, "0"); }).join(":"); }
@@ -141,10 +155,20 @@ function scanView() {
   return topbar("Scan QR Charger", "page", "home") + '<div class="scan"><video id="qv" autoplay playsinline muted></video><i></i><div id="qerr" class="qerr"></div></div>' +
     '<p class="mute" style="text-align:center">Arahkan kamera ke QR Code di charger untuk memulai pengisian</p>' + menuBtn("scan", "Input ID Charger", "Jika tidak ada QR code", "inputid", "");
 }
+var MAPI = null;
+function initMap() {
+  var el = document.getElementById("lmap");
+  if (MAPI) { try { MAPI.remove(); } catch (e) {} MAPI = null; }
+  if (!el || typeof L === "undefined") return;
+  MAPI = L.map(el, { zoomControl: false }).setView([LOKASI.lat, LOKASI.lng], 16);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(MAPI);
+  L.marker([LOKASI.lat, LOKASI.lng], { icon: L.divIcon({ className: "", html: '<div class="pin">⚡</div>', iconSize: [36, 36], iconAnchor: [18, 18] }) }).addTo(MAPI);
+}
 function mapView() {
   var k = lokasiStat();
-  return topbar("Pilih Lokasi Charger", "page", "home") + '<div class="mapbar">' + ic("search") + ' Cari lokasi, nama charger...</div><div class="map"><svg viewBox="0 0 300 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><path d="M-10 90L310 140M60 -10L110 310M-10 230L310 200M220 -10L180 310" stroke="#fff" stroke-width="12" fill="none"/><g transform="translate(150 150)"><circle r="22" fill="#22A85A" opacity=".2"/><circle r="11" fill="#22A85A"/><path d="M-3 -6L-6 1h4l-1 5 6-7h-4z" fill="#fff"/></g></svg></div>' +
-    '<div class="sheet"><b>' + esc(LOKASI.nama) + '</b><div class="mute">' + k.a + ' tersedia · ' + esc(LOKASI.jam) + '</div><button class="big acc" style="margin-top:10px" data-act="page" data-v="detail">Lihat Detail</button></div>';
+  return topbar("Pilih Lokasi Charger", "page", "home") + '<div class="mapbar">' + ic("search") + ' Cari lokasi, nama charger...</div>' + (LOKASI.lat != null ? '<div class="map" id="lmap"></div>' : '<div class="map"><svg viewBox="0 0 300 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><path d="M-10 90L310 140M60 -10L110 310M-10 230L310 200M220 -10L180 310" stroke="#fff" stroke-width="12" fill="none"/><g transform="translate(150 150)"><circle r="22" fill="#22A85A" opacity=".2"/><circle r="11" fill="#22A85A"/><path d="M-3 -6L-6 1h4l-1 5 6-7h-4z" fill="#fff"/></g></svg></div>') +
+    '<div class="sheet"><b>' + esc(LOKASI.nama) + '</b><div class="mute">' + k.a + ' tersedia · ' + esc(LOKASI.jam) + '</div><button class="big acc" style="margin-top:10px" data-act="page" data-v="detail">Lihat Detail</button>' +
+    (LOKASI.lat != null ? '<a class="btn ghost" style="margin-top:8px;padding:12px;font-size:16px" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + LOKASI.lat + "," + LOKASI.lng + '">Petunjuk arah</a>' : "") + '</div>';
 }
 function detailView() {
   var k = lokasiStat(), sel = S.outlets.filter(function (x) { return x.id === S.outlet; })[0], selOk = sel && sel.is_available && !S.busy[sel.id];
@@ -152,7 +176,7 @@ function detailView() {
     var u = !!S.busy[x.id], ok = x.is_available && !u;
     return '<button class="ch' + (S.outlet === x.id ? " sel" : "") + '" data-act="outlet" data-v="' + x.id + '"' + (ok ? "" : " disabled") + '><span class="mi">' + ic("bolt") + '</span><b>' + esc(x.name) + '</b><span class="st" style="color:' + (u ? "var(--blue)" : ok ? "var(--ok)" : "var(--bad)") + '">' + (u ? "Terisi" : ok ? "Tersedia" : "Tidak tersedia") + '</span></button>';
   }).join("");
-  return topbar("Detail Charger", "page", "map") + '<div class="card" style="background:var(--grad);color:#fff;border:0"><b style="font-size:20px">' + esc(LOKASI.nama) + '</b><div>' + esc(LOKASI.alamat) + ' · ' + esc(LOKASI.jam) + '</div></div>' +
+  return topbar("Detail Charger", "page", "map") + '<div class="card" style="background:' + (LOKASI.foto ? "linear-gradient(rgba(27,42,74,.3),rgba(27,42,74,.8)),url(" + String(LOKASI.foto).replace(/[()'"\s]/g, "") + ") center/cover" : "var(--grad)") + ';color:#fff;border:0;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end"><b style="font-size:20px">' + esc(LOKASI.nama) + '</b><div>' + esc(LOKASI.alamat) + ' · ' + esc(LOKASI.jam) + '</div></div>' +
     '<div class="chips"><span class="tag paid">' + k.a + ' Tersedia</span><span class="tag run">' + k.u + ' Terisi</span><span class="tag">' + k.x + ' Nonaktif</span></div>' +
     (LOKASI.fasilitas.length ? '<div class="mute">Fasilitas: ' + LOKASI.fasilitas.map(esc).join(" · ") + '</div>' : "") + '<h2>Daftar Charger</h2>' + list +
     '<button class="big acc" style="margin-top:12px" data-act="page" data-v="bayar"' + (selOk ? "" : " disabled") + '>Pilih Charger</button>';
@@ -312,6 +336,7 @@ function render() {
   var v = S.tab === "admin" && S.admin ? adminView() : S.tab === "riwayat" ? histView() : S.tab === "setting" ? settingView() : S.tab === "profil" ? profilView() : userView();
   $app.innerHTML = (S.tab === "admin" && S.admin ? head() : "") + v + navBar();
   if (document.getElementById("qv")) startScan(); else stopScan();
+  initMap();
   var q = document.getElementById("qr");
   if (q) {
     try { new QRCode(q, { text: qrisDynamic(Number(q.dataset.amt)), width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M }); }
@@ -798,6 +823,7 @@ async function boot() {
   S.admin = !!(a.data);
   await load();
   await loadProfile();
+  await loadLokasi();
   if (PEND) {
     var pid = PEND; PEND = null;
     try { history.replaceState(null, "", location.pathname); } catch (e) {}
