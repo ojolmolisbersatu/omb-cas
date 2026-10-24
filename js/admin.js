@@ -111,7 +111,7 @@
   function chk(l, k, v) { return '<label class="row" style="margin:8px 0"><input type="checkbox" data-f="' + k + '" style="width:auto"' + (v ? " checked" : "") + "> " + l + "</label>"; }
   function stForm(s) {
     s = s || { is_active: true, open_hours: "00:00-00:00" };
-    return '<div class="frm" data-id="' + (s.id || "") + '">' + inp("Nama lokasi", "name", s.name) + inp("Alamat", "address", s.address) + inp("Foto (link gambar)", "photo_url", s.photo_url) +
+    return '<div class="frm" data-id="' + (s.id || "") + '">' + inp("Nama lokasi", "name", s.name) + inp("Alamat", "address", s.address) + inp("Foto (link Google Drive atau link gambar)", "photo_url", s.photo_url) + inp("Latitude (peta)", "lat", s.lat, "text", "contoh -6.9932") + inp("Longitude (peta)", "lng", s.lng, "text", "contoh 110.4203") + inp("Fasilitas (pisahkan koma)", "facilities", (s.facilities || []).join(", "), "text", "Toilet, Parkir, Warung") +
       inp("Jam buka", "open_hours", s.open_hours) + chk("Lokasi aktif (tampil di aplikasi)", "is_active", s.is_active) +
       '<button class="acc" data-a="ssave">' + (s.id ? "Simpan lokasi" : "Tambah lokasi") + "</button></div>";
   }
@@ -132,6 +132,8 @@
     var r = await sb.rpc("admin_overview");
     if (r.error) return toast("Gagal memuat: " + r.error.message);
     var d = r.data || [], el = $id("v"); if (!el) return;
+    var g = await sb.rpc("charge_stations_public"), gm = {}; (g.data || []).forEach(function (x) { gm[x.id] = x; });
+    d.forEach(function (x) { var q = gm[x.station.id]; if (q) { x.station.lat = q.lat; x.station.lng = q.lng; x.station.facilities = q.facilities; } });
     el.innerHTML = '<h2>Lokasi baru</h2><div class="card">' + stForm() + "</div>" + d.map(function (x) {
       var s = x.station, o = x.outlets;
       return '<h2>' + esc(s.name) + '</h2><div class="card">' + stForm(s) + "</div>" +
@@ -202,6 +204,12 @@
       }
     } else return;
     if (r && r.error) return toast(r.error.message);
+    if (a === "ssave" && f.dataset.id && (v.lat || v.lng || v.facilities)) {
+      var la = parseFloat(String(v.lat).replace(",", ".")), ln = parseFloat(String(v.lng).replace(",", "."));
+      if ((v.lat || v.lng) && (!isFinite(la) || !isFinite(ln))) return toast("Latitude dan longitude harus berupa angka");
+      var r2 = await sb.rpc("admin_save_station_geo", { p_id: Number(f.dataset.id), p_lat: isFinite(la) ? la : null, p_lng: isFinite(ln) ? ln : null, p_fac: (v.facilities || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean) });
+      if (r2.error) return toast(r2.error.message);
+    }
     toast("Tersimpan"); kelola();
   }
 
