@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>OMB Charger - Mitra</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap">
+<style>
+:root{color-scheme:light;--bg:#F4F7FA;--ink:#1B2A4A;--mute:#5E6B80;--card:#fff;--line:#DCE3EC;--acc:#22A85A;--blue:#1E88E5;--ok:#22A85A;--bad:#DC2626;--grad:linear-gradient(135deg,#22A85A,#1E88E5);--shadow:0 1px 3px rgba(27,42,74,.08),0 4px 14px rgba(27,42,74,.06)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Archivo,system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}
+.box{max-width:420px;margin:48px auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+h1{font-size:28px;font-weight:800;margin:0 0 2px}
+h2{font-size:18px;margin:20px 0 8px}
+.mute{color:var(--mute);font-size:14px}
+.num{font-size:28px;font-weight:800;line-height:1.2}
+.row{display:flex;gap:8px;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 12px}
+input,select{width:100%;padding:12px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 16px;background:var(--ink);color:#fff;cursor:pointer}
+button.acc{background:var(--grad)}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.sm{padding:8px 12px;font-size:14px}
+button:disabled{opacity:.5}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.big{width:100%;font-size:18px;padding:14px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.seg button{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.seg button.sel{background:var(--grad);color:#fff;border-color:transparent}
+.frm label{display:block;margin-top:8px}
+.frm button{margin-top:12px}
+textarea{width:100%;padding:12px;font:13px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:10px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+.dot.off{background:var(--bad)}
+.dot.use{background:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:9px 8px;border-top:1px solid var(--line);white-space:nowrap}
+th{border-top:0;color:var(--mute);font-weight:600}
+.toast{position:fixed;left:16px;right:16px;bottom:16px;max-width:488px;margin:0 auto;background:var(--ink);color:#fff;padding:14px;border-radius:12px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.qc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;break-inside:avoid;box-shadow:var(--shadow)}
+.qc .qr{display:flex;justify-content:center;margin:10px 0}.qc .qr img,.qc .qr canvas{max-width:100%;height:auto}
+@media print{header,.seg,.noprint,.toast{display:none!important}body{background:#fff}.qc{box-shadow:none}.qgrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main id="app"><noscript>Aktifkan JavaScript untuk memakai web admin.</noscript></main>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script defer src="js/admin.js"></script>
+</body>
+</html>
