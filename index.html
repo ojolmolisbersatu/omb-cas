@@ -1,406 +1,123 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panduan Pengecasan — OMB Charge</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>OMB Service</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F4F7FA">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OMB">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap">
 <style>
-  :root{
-    --bg: #eef0ea;
-    --card: #ffffff;
-    --card-line: #d9dcd2;
-    --lime: #6b8f00;
-    --lime-rgb: 107,143,0;
-    --teal: #2f6b65;
-    --text: #1c211a;
-    --muted: #5c6359;
-    --warn-bg: #fff1e8;
-    --warn-line: #e8622c;
-    --warn-text: #8a3512;
-  }
-  [data-theme="dark"]{
-    --bg: #14181d;
-    --card: #1d242c;
-    --card-line: #2b343d;
-    --lime: #d4f547;
-    --lime-rgb: 212,245,71;
-    --teal: #6fb3ac;
-    --text: #f2f0e8;
-    --muted: #93a0a9;
-    --warn-bg: #2c1c14;
-    --warn-line: #e8622c;
-    --warn-text: #ffd9bd;
-  }
-  *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    line-height: 1.5;
-    padding: 0 0 48px;
-    transition: background 0.2s ease, color 0.2s ease;
-  }
-  .wrap{ max-width: 620px; margin: 0 auto; padding: 0 20px; }
+:root{color-scheme:light;--bg:#F4F7FA;--ink:#1B2A4A;--mute:#5E6B80;--card:#FFFFFF;--line:#DCE3EC;--acc:#22A85A;--accink:#FFFFFF;--blue:#1E88E5;--ok:#22A85A;--bad:#DC2626;--warn:#F59E0B;--grad:linear-gradient(135deg,#22A85A,#1E88E5);--shadow:0 1px 3px rgba(27,42,74,.08),0 4px 14px rgba(27,42,74,.06)}
+*{box-sizing:border-box}
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Archivo,system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1{font-size:28px;font-weight:800;margin:8px 0 2px;letter-spacing:-.5px}
+h2{font-size:18px;margin:20px 0 8px}
+.sub{color:var(--mute);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;box-shadow:var(--shadow)}
+.row{display:flex;gap:8px;align-items:center}
+.sp{justify-content:space-between}
+input,select{width:100%;padding:13px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:13px 16px;background:var(--ink);color:#fff;cursor:pointer}
+button.acc{background:var(--grad);color:#fff}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.bad{background:var(--bad);color:#fff}
+button.sm{padding:8px 10px;font-size:14px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.big{width:100%;font-size:18px;padding:16px}
+.outlets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.outlet{padding:14px;text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.outlet.sel{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.outlet small{display:block;color:var(--mute);font-weight:400}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.num{font-size:44px;font-weight:800;letter-spacing:-1px;line-height:1.05}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;background:var(--line)}
+.tag.run{background:var(--blue);color:#fff}.tag.paid{background:var(--ok);color:#fff}.tag.unpaid{background:var(--warn);color:var(--ink)}
+.bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;background:var(--grad)}
+#qr{display:flex;justify-content:center;background:#fff;padding:14px;border-radius:12px;margin:12px 0}
+.tabs{display:flex;gap:8px;margin:8px 0}
+.tabs button{flex:1}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:488px;margin:0 auto;background:var(--ink);color:#fff;padding:14px;border-radius:12px;z-index:9}
+.s{border-top:1px solid var(--line);padding:12px 0}.s:first-child{border-top:0}
+.mute{color:var(--mute);font-size:14px}
+.hi{margin:0 0 12px}.hi b{font-size:18px}.hi .tag{margin-left:6px}
+.admin-menu{position:sticky;top:0;z-index:8;background:var(--bg);padding:8px 0 10px;margin:0 -2px 4px}
+.admin-menu-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.admin-menu button{position:relative;padding:12px 8px;font-size:14px;line-height:1.15;min-height:52px}
+.admin-menu button.active{background:var(--grad);color:#fff;border-color:transparent}
+.admin-section-title{margin-top:14px}
 
-  header{
-    padding: 40px 20px 28px;
-    border-bottom: 1px solid var(--card-line);
-    position: relative;
-    overflow: hidden;
-  }
-  header::before{
-    content:"";
-    position:absolute;
-    top:-60px; right:-60px;
-    width:180px; height:180px;
-    background: radial-gradient(circle, rgba(var(--lime-rgb),0.18), transparent 70%);
-  }
-  .theme-toggle{
-    position: absolute;
-    top: 18px;
-    right: 20px;
-    background: var(--card);
-    border: 1px solid var(--card-line);
-    color: var(--muted);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 12.5px;
-    padding: 6px 12px;
-    border-radius: 100px;
-    cursor: pointer;
-  }
-  .theme-toggle:hover{ color: var(--text); }
-  .wordmark{
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    font-size: 34px;
-    letter-spacing: 0.3px;
-    color: var(--lime);
-    margin: 0;
-    position: relative;
-  }
-  .tag{
-    display:inline-block;
-    margin-top: 10px;
-    font-size: 13px;
-    color: var(--muted);
-    border: 1px solid var(--card-line);
-    padding: 4px 10px;
-    border-radius: 100px;
-  }
-  .subtitle{
-    margin: 16px 0 0;
-    max-width: 46ch;
-    color: var(--muted);
-    font-size: 15px;
-  }
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.login-hero{display:flex;flex-direction:column;align-items:center;text-align:center;margin:24px 0 8px}
+.login-hero img{width:96px;height:96px;border-radius:22px;object-fit:contain;margin-bottom:8px}
+.login-hero h1{margin:4px 0 2px}
+.brand{display:flex;align-items:center;gap:8px;margin:6px 0 14px;font-size:26px;font-weight:800;font-style:italic;letter-spacing:-.5px}
+.brand svg{width:28px;height:28px;fill:var(--acc)}.brand b{color:var(--acc)}
 
-  .contact-top{
-    margin: 20px 20px 0;
-    background: var(--card);
-    border: 1px solid var(--card-line);
-    border-radius: 6px;
-    padding: 16px 18px;
-    display:flex;
-    align-items:center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .contact-top .ct-label{
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  .contact-top .ct-number{
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    font-size: 26px;
-    color: var(--lime);
-    letter-spacing: 0.5px;
-  }
-
-  .steps{
-    padding: 28px 20px 8px;
-    position: relative;
-  }
-  .step{
-    display:grid;
-    grid-template-columns: 34px 1fr;
-    gap: 16px;
-    position: relative;
-    padding-bottom: 30px;
-  }
-  .step:last-child{ padding-bottom: 0; }
-  .rail{
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .num{
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: var(--card);
-    border: 1.5px solid var(--lime);
-    color: var(--lime);
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink: 0;
-  }
-  .line{
-    width: 1.5px;
-    flex: 1;
-    background: var(--card-line);
-    margin-top: 4px;
-  }
-  .step:last-child .line{ display:none; }
-
-  .step h3{
-    margin: 4px 0 6px;
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-weight: 600;
-    font-size: 18px;
-    letter-spacing: 0.2px;
-  }
-  .step p{
-    margin: 0;
-    color: var(--muted);
-    font-size: 14.5px;
-  }
-
-  .bubble{
-    margin-top: 10px;
-    background: var(--card);
-    border: 1px solid var(--card-line);
-    border-left: 3px solid var(--teal);
-    border-radius: 4px;
-    padding: 10px 14px;
-    font-size: 14px;
-    color: var(--text);
-  }
-  .bubble .label{
-    display:block;
-    font-size: 11.5px;
-    color: var(--teal);
-    margin-bottom: 4px;
-  }
-
-  .meter{
-    margin-top: 10px;
-    display:flex;
-    gap: 10px;
-  }
-  .meter div{
-    flex:1;
-    background: var(--card);
-    border: 1px solid var(--card-line);
-    border-radius: 4px;
-    padding: 10px 12px;
-  }
-  .meter span{
-    display:block;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
-  .meter strong{
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-size: 15px;
-    color: var(--lime);
-  }
-
-  .warn{
-    margin: 32px 20px 0;
-    background: var(--warn-bg);
-    border: 1px solid var(--warn-line);
-    border-radius: 6px;
-    padding: 18px 18px;
-  }
-  .warn h4{
-    margin: 0 0 8px;
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-size: 15px;
-    color: var(--warn-text);
-    font-weight: 600;
-  }
-  .warn p{
-    margin: 0;
-    font-size: 14px;
-    color: var(--warn-text);
-    opacity: 0.9;
-  }
-
-  footer{
-    margin: 32px 20px 0;
-    padding-top: 18px;
-    border-top: 1px solid var(--card-line);
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-
-  .contact-bottom{
-    margin: 32px 20px 0;
-    background: var(--card);
-    border: 1.5px solid var(--lime);
-    border-radius: 8px;
-    padding: 26px 20px;
-    text-align: center;
-  }
-  .contact-bottom .cb-label{
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-  .contact-bottom .cb-number{
-    font-family:'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    font-size: 32px;
-    color: var(--lime);
-    letter-spacing: 0.5px;
-    margin-bottom: 18px;
-  }
-  #qr-code{
-    display:inline-block;
-    background: #fff;
-    padding: 10px;
-    border-radius: 6px;
-    line-height: 0;
-  }
-  .cb-qr-caption{
-    margin-top: 10px;
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  .cb-link{
-    display: inline-block;
-    margin-top: 16px;
-    background: var(--lime);
-    color: var(--bg);
-    font-weight: 600;
-    font-size: 14px;
-    text-decoration: none;
-    padding: 10px 22px;
-    border-radius: 100px;
-  }
+.hello{font-size:20px;font-weight:800;margin:4px 0 0}
+.ocs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.oc{display:flex;gap:10px;align-items:center;text-align:left;padding:12px;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:12px}
+.oc.sel{border-color:var(--ok);background:#E8F6EE}
+.oc svg{width:26px;height:26px;fill:var(--acc);flex:none}
+.oc small{display:block;font-weight:400;color:var(--mute)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}.dot.off{background:var(--bad)}.dot.use{background:var(--blue)}
+.chips button{flex:1;background:transparent;color:var(--ink);border:1px solid var(--line);padding:10px 4px;font-size:14px}
+.chips button.sel{border-color:var(--acc);color:var(--acc);background:#E8F6EE}
+.stripe{height:14px;border-radius:4px;overflow:hidden;background:#E3EAF2;margin:12px 0}
+.stripe i{display:block;height:100%;background:repeating-linear-gradient(115deg,rgba(255,255,255,.28) 0 6px,transparent 6px 12px),var(--grad)}
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);margin-top:6px}
+.btn{display:block;text-align:center;text-decoration:none;font-weight:600;border-radius:10px;padding:16px;font-size:18px}
+.btn.acc{background:var(--grad);color:#fff}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;justify-content:space-around;background:#fff;border-top:1px solid var(--line);box-shadow:0 -2px 12px rgba(27,42,74,.06);padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
+.nav button{background:none;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;padding:6px 10px;border-radius:0;border-bottom:2px solid transparent}
+.nav button.on{color:var(--acc);border-bottom-color:var(--acc)}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pwbox{position:relative}.pwbox input{padding-right:52px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;color:var(--mute);padding:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px}
+.eye svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+.badge{position:absolute;top:-6px;right:-4px;background:var(--bad);color:#fff;border-radius:99px;font-size:11px;min-width:18px;height:18px;line-height:18px;padding:0 5px;text-align:center}
+.nav button{position:relative}.nav .badge{top:0;right:4px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.seg button{background:transparent;color:var(--ink);border:1px solid var(--line)}.seg button.sel{background:var(--grad);color:#fff;border-color:transparent}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+.warnbox{border:2px solid var(--warn);background:#FFFBEB}
+.warnbox .s{border-color:#F3E3B5}
+.ico{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+.top{display:flex;align-items:center;gap:10px;margin:4px 0 14px}.top b{flex:1;text-align:center;font-size:17px}.top i{width:40px}
+.top button{background:var(--card);color:var(--ink);border:1px solid var(--line);width:40px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px}
+.hero{background:var(--grad);color:#fff;border-radius:0 0 28px 28px;margin:-16px -16px 16px;padding:40px 20px 30px;text-align:center}
+.hero img{width:84px;height:84px;border-radius:22px;background:#fff;padding:6px}.hero h1{margin:10px 0 4px}.hero p{margin:0;opacity:.92}
+.coinbox{background:var(--grad);color:#fff;border-radius:20px;padding:18px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);margin:12px 0}
+.coinbox .n{font-size:34px;font-weight:800;line-height:1.1}.coinbox small{opacity:.9}
+.menu{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:var(--shadow)}
+.mi{width:44px;height:44px;border-radius:12px;background:#E8F6EE;color:var(--acc);display:inline-flex;align-items:center;justify-content:center;flex:none}.mi.b{background:#E6F1FC;color:var(--blue)}
+.menu .t{flex:1}.menu small{display:block;color:var(--mute);font-weight:400}
+.av{width:56px;height:56px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;background:#E8F6EE;color:var(--ok);font-size:13px;font-weight:600}
+.ring{position:relative;width:230px;height:230px;margin:8px auto}.ring>svg{width:100%;height:100%;transform:rotate(-90deg)}.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.ring .c .ico{width:32px;height:32px}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}.tri b{display:block;font-size:17px}
+.scan{aspect-ratio:1;border-radius:20px;background:var(--ink);position:relative;display:flex;align-items:center;justify-content:center;color:#fff;margin:6px 0 14px}.scan i{position:absolute;inset:14%;border:3px solid #fff;border-radius:20px;opacity:.85}
+.mapbar{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;color:var(--mute)}
+.map{height:300px;border-radius:20px;background:#E3EEF7;overflow:hidden;border:1px solid var(--line)}
+.sheet{background:var(--card);border-radius:20px;padding:14px;margin:-40px 12px 0;position:relative;box-shadow:var(--shadow);border:1px solid var(--line)}
+.ch{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;margin:8px 0;width:100%;color:var(--ink);text-align:left}.ch.sel{border-color:var(--ok);background:#E8F6EE}.ch .st{margin-left:auto;font-size:13px;font-weight:600}
+.mask{position:fixed;inset:0;background:rgba(27,42,74,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}.dlg{background:#fff;border-radius:22px;padding:22px;max-width:360px;width:100%;text-align:center}
+.nav button.on{border-bottom-color:transparent}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <button id="theme-toggle" class="theme-toggle" type="button">🌙 Dark</button>
-      <p class="wordmark">OMB Charge</p>
-      <span class="tag">by Semilir Semarang</span>
-      <p class="subtitle">Panduan singkat buat kamu yang mau ngecas motor listrik di titik charge OMB.</p>
-    </header>
-
-    <div class="contact-top">
-      <div>
-        <div class="ct-label">Admin OMB Charge</div>
-        <div class="ct-number">0896-7205-6155</div>
-      </div>
-    </div>
-
-    <div class="steps">
-
-      <div class="step">
-        <div class="rail"><div class="num">1</div><div class="line"></div></div>
-        <div>
-          <h3>Hubungi admin</h3>
-          <p>Kirim pesan ke admin dengan format berikut, sebutkan ID OMB atau nama kamu.</p>
-          <div class="bubble">
-            <span class="label">Format pesan</span>
-            MAU NGECAS — [ID OMB / Nama]
-          </div>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="rail"><div class="num">2</div><div class="line"></div></div>
-        <div>
-          <h3>Listrik dinyalakan</h3>
-          <p>Admin menyalakan aliran listrik dan mengirim angka kWh meter awal. Catat angka ini, jadi patokan hitungan tagihan.</p>
-          <div class="meter">
-            <div><span>kWh meter awal</span><strong>dari admin</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="rail"><div class="num">3</div><div class="line"></div></div>
-        <div>
-          <h3>Colok & charge motor</h3>
-          <p>Sambungkan motor ke titik charge, tunggu sampai baterai terisi sesuai kebutuhan kamu.</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="rail"><div class="num">4</div><div class="line"></div></div>
-        <div>
-          <h3>Selesai charge, hubungi admin lagi</h3>
-          <p>Begitu pengecasan selesai, langsung kabari admin — jangan ditunda.</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="rail"><div class="num">5</div><div class="line"></div></div>
-        <div>
-          <h3>Admin kirimkan kWh meter akhir</h3>
-          <p>Selisih antara kWh meter awal dan akhir jadi dasar hitungan biaya jasa charge kamu.</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="rail"><div class="num">6</div></div>
-        <div>
-          <h3>Terima nota & bayar</h3>
-          <p>Admin mengirim nota pembayaran beserta QRIS. Scan, bayar, selesai.</p>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="warn">
-      <h4>Penting: selalu hubungi admin begitu selesai charge</h4>
-      <p>Kalau kamu enggak menghubungi admin setelah selesai, listrik tetap menyala dan tagihan kWh terus berjalan. Kalau pengguna berikutnya sempat memakai listrik yang masih nyala itu, tagihannya bisa ikut dibebankan ke kamu sebagai pengguna sebelumnya.</p>
-    </div>
-
-    <div class="contact-bottom">
-      <div class="cb-label">Hubungi admin OMB Charge</div>
-      <div class="cb-number">0896-7205-6155</div>
-      <div id="qr-code"></div>
-      <div class="cb-qr-caption">Scan untuk langsung chat WhatsApp admin</div>
-      <a class="cb-link" href="https://wa.me/6289672056155?text=Halo%20min,%20mau%20ngecas%20dong" target="_blank" rel="noopener">Klik di sini →</a>
-    </div>
-
-<footer>
-  <p>OMB Charge · Semilir Semarang</p>
-  <p class="credit">Created By <a href="https://instagram.com/zulfikrian" target="_blank" rel="noopener noreferrer">@zulfikrian</a></p>
-</footer>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script>
-    new QRCode(document.getElementById("qr-code"), {
-      text: "https://wa.me/6289672056155?text=Halo%20min,%20mau%20ngecas%20dong",
-      width: 150,
-      height: 150,
-      colorDark: "#14181d",
-      colorLight: "#ffffff"
-    });
-
-    var toggleBtn = document.getElementById("theme-toggle");
-    toggleBtn.addEventListener("click", function(){
-      var isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      if(isDark){
-        document.documentElement.removeAttribute("data-theme");
-        toggleBtn.textContent = "🌙 Dark";
-      } else {
-        document.documentElement.setAttribute("data-theme", "dark");
-        toggleBtn.textContent = "☀️ Light";
-      }
-    });
-  </script>
+<main id="app"></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
