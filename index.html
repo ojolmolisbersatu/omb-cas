@@ -113,12 +113,15 @@ main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .mask{position:fixed;inset:0;background:rgba(27,42,74,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}.dlg{background:#fff;border-radius:22px;padding:22px;max-width:360px;width:100%;text-align:center}
 .nav button.on{border-bottom-color:transparent}
 .scan{overflow:hidden}.scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.qerr{position:absolute;left:0;right:0;bottom:12px;padding:0 20px;text-align:center;font-size:14px;color:#fff;z-index:2}
+.pin{width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:var(--shadow);font-size:16px}.map .leaflet-container{height:100%;font:inherit}
 </style>
 </head>
 <body>
 <main id="app"></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="js/app.js"></script>
 </body>
