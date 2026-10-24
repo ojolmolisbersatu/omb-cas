@@ -148,12 +148,12 @@ function lokasiStat() { var k = { a: 0, u: 0, x: 0 }; S.outlets.forEach(function
 function menuBtn(i, t, sub, act, v, b) { return '<button class="menu" data-act="' + act + '" data-v="' + v + '"><span class="mi' + (b ? " b" : "") + '">' + ic(i) + '</span><span class="t"><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : "") + '</span>' + ic("chev") + '</button>'; }
 function homeView() {
   return '<div style="margin:4px 0 12px"><div class="mute">Halo,</div><p class="hello">' + esc(nm()) + '</p><div class="mute">Selamat beraktivitas, semoga selalu lancar!</div></div>' + coinCard() + pendTop() +
-    menuBtn("scan", "Scan QR Charger", "Langsung mulai pengisian", "page", "scan") + menuBtn("pin", "Pilih Lokasi Charger", "Lihat daftar lokasi terdekat", "page", "map", 1) +
-    '<div class="card" style="background:var(--grad);color:#fff;border:0"><b>Nikmati pengalaman ngecas yang lebih mudah dengan OMB Charge</b></div>';
+    menuBtn("scan", "Scan QR", "Langsung mulai pengisian", "page", "scan") + menuBtn("pin", "Pilih Lokasi", "Lihat daftar lokasi terdekat", "page", "map", 1) +
+    '<div class="card" style="background:var(--grad);color:#fff;border:0"><b>Nikmati pengalaman ngecas yang lebih mudah dengan OMB Service</b></div>';
 }
 function scanView() {
-  return topbar("Scan QR Charger", "page", "home") + '<div class="scan"><video id="qv" autoplay playsinline muted></video><i></i><div id="qerr" class="qerr"></div></div>' +
-    '<p class="mute" style="text-align:center">Arahkan kamera ke QR Code di charger untuk memulai pengisian</p>' + menuBtn("scan", "Input ID Charger", "Jika tidak ada QR code", "inputid", "");
+  return topbar("Scan QR Lokasi", "page", "home") + '<div class="scan"><video id="qv" autoplay playsinline muted></video><i></i><div id="qerr" class="qerr"></div></div>' +
+    '<p class="mute" style="text-align:center">Arahkan kamera ke QR Code untuk memulai</p>' + menuBtn("scan", "Input ID Lokasi", "Jika tidak ada QR code", "inputid", "");
 }
 var MAPI = null;
 function initMap() {
@@ -166,7 +166,7 @@ function initMap() {
 }
 function mapView() {
   var k = lokasiStat();
-  return topbar("Pilih Lokasi Charger", "page", "home") + '<div class="mapbar">' + ic("search") + ' Cari lokasi, nama charger...</div>' + (LOKASI.lat != null ? '<div class="map" id="lmap"></div>' : '<div class="map"><svg viewBox="0 0 300 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><path d="M-10 90L310 140M60 -10L110 310M-10 230L310 200M220 -10L180 310" stroke="#fff" stroke-width="12" fill="none"/><g transform="translate(150 150)"><circle r="22" fill="#22A85A" opacity=".2"/><circle r="11" fill="#22A85A"/><path d="M-3 -6L-6 1h4l-1 5 6-7h-4z" fill="#fff"/></g></svg></div>') +
+  return topbar("Pilih Lokasi", "page", "home") + '<div class="mapbar">' + ic("search") + ' Cari lokasi, nama...</div>' + (LOKASI.lat != null ? '<div class="map" id="lmap"></div>' : '<div class="map"><svg viewBox="0 0 300 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><path d="M-10 90L310 140M60 -10L110 310M-10 230L310 200M220 -10L180 310" stroke="#fff" stroke-width="12" fill="none"/><g transform="translate(150 150)"><circle r="22" fill="#22A85A" opacity=".2"/><circle r="11" fill="#22A85A"/><path d="M-3 -6L-6 1h4l-1 5 6-7h-4z" fill="#fff"/></g></svg></div>') +
     '<div class="sheet"><b>' + esc(LOKASI.nama) + '</b><div class="mute">' + k.a + ' tersedia · ' + esc(LOKASI.jam) + '</div><button class="big acc" style="margin-top:10px" data-act="page" data-v="detail">Lihat Detail</button>' +
     (LOKASI.lat != null ? '<a class="btn ghost" style="margin-top:8px;padding:12px;font-size:16px" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + LOKASI.lat + "," + LOKASI.lng + '">Petunjuk arah</a>' : "") + '</div>';
 }
@@ -176,10 +176,10 @@ function detailView() {
     var u = !!S.busy[x.id], ok = x.is_available && !u;
     return '<button class="ch' + (S.outlet === x.id ? " sel" : "") + '" data-act="outlet" data-v="' + x.id + '"' + (ok ? "" : " disabled") + '><span class="mi">' + ic("bolt") + '</span><b>' + esc(x.name) + '</b><span class="st" style="color:' + (u ? "var(--blue)" : ok ? "var(--ok)" : "var(--bad)") + '">' + (u ? "Terisi" : ok ? "Tersedia" : "Tidak tersedia") + '</span></button>';
   }).join("");
-  return topbar("Detail Charger", "page", "map") + '<div class="card" style="background:' + (LOKASI.foto ? "linear-gradient(rgba(27,42,74,.3),rgba(27,42,74,.8)),url(" + String(LOKASI.foto).replace(/[()'"\s]/g, "") + ") center/cover" : "var(--grad)") + ';color:#fff;border:0;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end"><b style="font-size:20px">' + esc(LOKASI.nama) + '</b><div>' + esc(LOKASI.alamat) + ' · ' + esc(LOKASI.jam) + '</div></div>' +
+  return topbar("Detail Lokasi", "page", "map") + '<div class="card" style="background:' + (LOKASI.foto ? "linear-gradient(rgba(27,42,74,.3),rgba(27,42,74,.8)),url(" + String(LOKASI.foto).replace(/[()'"\s]/g, "") + ") center/cover" : "var(--grad)") + ';color:#fff;border:0;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end"><b style="font-size:20px">' + esc(LOKASI.nama) + '</b><div>' + esc(LOKASI.alamat) + ' · ' + esc(LOKASI.jam) + '</div></div>' +
     '<div class="chips"><span class="tag paid">' + k.a + ' Tersedia</span><span class="tag run">' + k.u + ' Terisi</span><span class="tag">' + k.x + ' Nonaktif</span></div>' +
-    (LOKASI.fasilitas.length ? '<div class="mute">Fasilitas: ' + LOKASI.fasilitas.map(esc).join(" · ") + '</div>' : "") + '<h2>Daftar Charger</h2>' + list +
-    '<button class="big acc" style="margin-top:12px" data-act="page" data-v="bayar"' + (selOk ? "" : " disabled") + '>Pilih Charger</button>';
+    (LOKASI.fasilitas.length ? '<div class="mute">Fasilitas: ' + LOKASI.fasilitas.map(esc).join(" · ") + '</div>' : "") + '<h2>Daftar Lokasi</h2>' + list +
+    '<button class="big acc" style="margin-top:12px" data-act="page" data-v="bayar"' + (selOk ? "" : " disabled") + '>Pilih Tempat</button>';
 }
 function estHtml() {
   var c = estCost(tgtVal()), b = S.coin || 0, f = function (n) { return Number(n).toLocaleString("id-ID"); };
@@ -240,12 +240,12 @@ function onQr(t) {
   if (t === ST.bad && Date.now() - ST.at < 3000) return;
   ST.bad = t; ST.at = Date.now();
   var id = chargerFrom(t);
-  if (id == null) return toast("QR ini bukan QR charger OMB");
+  if (id == null) return toast("QR ini bukan QR Code OMB");
   if (openCharger(id)) { stopScan(); S.sig = ""; render(); }
 }
 async function startScan() {
   if (ST.starting) return;
-  var fail = function () { stopScan(); var e = document.getElementById("qerr"); if (e) e.textContent = "Kamera tidak bisa dibuka. Izinkan akses kamera untuk aplikasi ini, atau pakai Input ID Charger."; };
+  var fail = function () { stopScan(); var e = document.getElementById("qerr"); if (e) e.textContent = "Kamera tidak bisa dibuka. Izinkan akses kamera untuk aplikasi ini, atau pakai Input ID Lokasi."; };
   ST.starting = true;
   try {
     if (!ST.stream) {
@@ -268,7 +268,7 @@ async function startScan() {
 
 // ===== TAMPILAN =====
 function login(err) {
-  $app.innerHTML = '<div class="hero"><img src="icon-192.png" alt="OMB Charge"><h1>OMB Charge</h1><p>Ngecas lebih mudah, perjalanan tetap lancar</p><span class="pill" style="margin-top:12px;background:rgba(255,255,255,.2);color:#fff">Khusus Anggota OMB</span></div><div class="card">' +
+  $app.innerHTML = '<div class="hero"><img src="icon-192.png" alt="OMB Service"><h1>OMB Service</h1><p></p><span class="pill" style="margin-top:12px;background:rgba(255,255,255,.2);color:#fff">Khusus Anggota OMB</span></div><div class="card">' +
     '<label class="mute" for="em">Email</label><input id="em" type="email" autocomplete="username">' +
     '<label class="mute" for="pw">Password</label>' + pwBox("pw", "current-password", "") +
     '<p class="mute" style="color:var(--bad)">' + esc(err || "") + '</p><button class="big acc" data-act="login">Masuk</button></div>';
@@ -424,7 +424,7 @@ function profilView() {
   return topbar("Profil") + '<div class="card row"><span class="av">' + ic("profil") + '</span><div><b style="font-size:18px">' + esc(nm()) + '</b><div class="mute">' + (p && p.id != null ? "ID Anggota: " + esc(p.id) : "") + '</div><span class="pill">Anggota Aktif</span></div></div>' + coinCard() +
     (S.sub === "diri" ? '<div class="card"><div class="kv" style="border:0;margin:0"><span>Nama</span><b>' + esc(nm()) + '</b></div><div class="kv"><span>ID Anggota</span><b>' + esc(p && p.id != null ? p.id : "-") + '</b></div><div class="kv"><span>Email</span><b>' + esc(S.user.email || "-") + '</b></div></div>' : "") +
     menuBtn("profil", "Data Diri", "", "sub", "diri") + menuBtn("car", "Kendaraan", "", "soon", "Kendaraan") + menuBtn("coin", "Saldo & Riwayat", "", "rcoin", "", 1) + menuBtn("setting", "Pengaturan", "", "tab", "setting") +
-    menuBtn("help", "Bantuan", "Hubungi admin lewat WhatsApp", "help", "", 1) + menuBtn("info", "Tentang OMB Charge", "", "soon", "Halaman Tentang") + '<button class="big ghost" style="margin-top:6px" data-act="logout">Keluar</button>';
+    menuBtn("help", "Bantuan", "Hubungi admin lewat WhatsApp", "help", "", 1) + menuBtn("info", "Tentang OMB Service", "", "soon", "Halaman Tentang") + '<button class="big ghost" style="margin-top:6px" data-act="logout">Keluar</button>';
 }
 
 function memberRows() {
@@ -699,7 +699,7 @@ document.addEventListener("click", async function (e) {
     if (act === "stopask") { S.stopDlg = true; S.sig = ""; return render(); }
     if (act === "stopno") { S.stopDlg = false; S.sig = ""; return render(); }
     if (act === "inputid") {
-      var iv = prompt("Masukkan nomor/ID charger:", ""); if (iv === null) return;
+      var iv = prompt("Masukkan nomor/ID Lokasi:", ""); if (iv === null) return;
       if (openCharger(iv)) { S.sig = ""; return render(); }
       return;
     }
