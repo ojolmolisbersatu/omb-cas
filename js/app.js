@@ -122,7 +122,7 @@ async function load() {
   }
   var sig = JSON.stringify([S.sess, S.all, S.tariff, S.tab, S.adminMenu, S.outlets, S.busy, S.members, S.unl, S.pwOpen, S.hist, S.wallets, S.coin, S.topup, S.tops, S.unpaid, S.ledger, S.rtab, S.topupOpen, S.page, S.sub, S.stopDlg, S.outlet]);
   var typing = document.activeElement && document.activeElement.tagName === "INPUT";
-  if (sig !== S.sig && !typing) { S.sig = sig; render(); } // tunda render saat pengguna sedang mengetik
+  if (sig !== S.sig && !typing && !(ST.stream && document.getElementById("qv"))) { S.sig = sig; render(); } // tunda render saat pengguna sedang mengetik
 }
 
 var LOKASI = { nama: "SPKLU OMB Semilir", alamat: "Semilir, Kota Semarang", jam: "24 Jam", fasilitas: ["Toilet", "Parkir", "Warung"] }; // edit sesuai kondisi lokasi
@@ -138,7 +138,7 @@ function homeView() {
     '<div class="card" style="background:var(--grad);color:#fff;border:0"><b>Nikmati pengalaman ngecas yang lebih mudah dengan OMB Charge</b></div>';
 }
 function scanView() {
-  return topbar("Scan QR Charger", "page", "home") + '<div class="scan"><i></i><div style="text-align:center;padding:0 28px;opacity:.85">Kamera QR belum aktif.<br>Gunakan Input ID Charger.</div></div>' +
+  return topbar("Scan QR Charger", "page", "home") + '<div class="scan"><video id="qv" autoplay playsinline muted></video><i></i><div id="qerr" class="qerr"></div></div>' +
     '<p class="mute" style="text-align:center">Arahkan kamera ke QR Code di charger untuk memulai pengisian</p>' + menuBtn("scan", "Input ID Charger", "Jika tidak ada QR code", "inputid", "");
 }
 function mapView() {
@@ -195,6 +195,51 @@ function sessItem(x) {
   var tg = run ? '<span class="tag run">Berjalan</span>' : x.payment_status === "paid" ? '<span class="tag paid">Lunas</span>' : x.payment_status === "unpaid" ? '<span class="tag unpaid">Belum bayar</span>' : '<span class="tag">' + esc(x.status) + '</span>';
   return '<div class="card"><div class="row sp"><div class="row"><span class="mi">' + ic("bolt") + '</span><div><b>Pengisian Colokan ' + x.outlet_id + '</b><div class="mute">' + dt(x.created_at) + '</div></div></div>' + tg + '</div><div class="row sp" style="margin-top:8px"><span>' + poin(x.used_wh) + ' Poin</span><b>' + rp(x.amount_idr) + '</b></div>' +
     (Number(x.amount_coin) > 0 ? '<div class="mute">Coin ' + rp(x.amount_coin) + (x.amount_qris ? ' · QRIS ' + rp(x.amount_qris) : '') + '</div>' : '') + '</div>';
+}
+
+var ST = { stream: null, timer: null, starting: false, bad: "", at: 0 };
+function openCharger(id) {
+  var o = S.outlets.filter(function (x) { return String(x.id) === String(id).trim(); })[0];
+  if (!o) { toast("Charger tidak ditemukan"); return false; }
+  if (!o.is_available || S.busy[o.id]) { toast("Charger sedang tidak tersedia"); return false; }
+  S.outlet = o.id; S.tab = "charge"; S.page = "bayar"; return true;
+}
+function chargerFrom(t) {
+  var m = /[?&]charger=([^&#\s]+)/.exec(t); if (m) return decodeURIComponent(m[1]);
+  return /^\d+$/.test(String(t).trim()) ? String(t).trim() : null;
+}
+function stopScan() {
+  if (ST.timer) { clearInterval(ST.timer); ST.timer = null; }
+  if (ST.stream) { ST.stream.getTracks().forEach(function (t) { t.stop(); }); ST.stream = null; }
+}
+function onQr(t) {
+  if (t === ST.bad && Date.now() - ST.at < 3000) return;
+  ST.bad = t; ST.at = Date.now();
+  var id = chargerFrom(t);
+  if (id == null) return toast("QR ini bukan QR charger OMB");
+  if (openCharger(id)) { stopScan(); S.sig = ""; render(); }
+}
+async function startScan() {
+  if (ST.starting) return;
+  var fail = function () { stopScan(); var e = document.getElementById("qerr"); if (e) e.textContent = "Kamera tidak bisa dibuka. Izinkan akses kamera untuk aplikasi ini, atau pakai Input ID Charger."; };
+  ST.starting = true;
+  try {
+    if (!ST.stream) {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("no camera api");
+      ST.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    }
+    var v = document.getElementById("qv"); if (!v) return stopScan();
+    v.srcObject = ST.stream; v.muted = true; await v.play();
+  } catch (e) { return fail(); } finally { ST.starting = false; }
+  if (ST.timer) return;
+  var cv = document.createElement("canvas"), cx = cv.getContext("2d", { willReadFrequently: true });
+  ST.timer = setInterval(function () {
+    var vid = document.getElementById("qv"); if (!vid || !vid.videoWidth || typeof jsQR !== "function") return;
+    var w = Math.min(480, vid.videoWidth), h = Math.round(vid.videoHeight * w / vid.videoWidth);
+    cv.width = w; cv.height = h; cx.drawImage(vid, 0, 0, w, h);
+    var r = jsQR(cx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: "dontInvert" });
+    if (r && r.data) onQr(r.data);
+  }, 250);
 }
 
 // ===== TAMPILAN =====
@@ -266,6 +311,7 @@ function render() {
   if (!S.user) return login();
   var v = S.tab === "admin" && S.admin ? adminView() : S.tab === "riwayat" ? histView() : S.tab === "setting" ? settingView() : S.tab === "profil" ? profilView() : userView();
   $app.innerHTML = (S.tab === "admin" && S.admin ? head() : "") + v + navBar();
+  if (document.getElementById("qv")) startScan(); else stopScan();
   var q = document.getElementById("qr");
   if (q) {
     try { new QRCode(q, { text: qrisDynamic(Number(q.dataset.amt)), width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M }); }
@@ -629,10 +675,8 @@ document.addEventListener("click", async function (e) {
     if (act === "stopno") { S.stopDlg = false; S.sig = ""; return render(); }
     if (act === "inputid") {
       var iv = prompt("Masukkan nomor/ID charger:", ""); if (iv === null) return;
-      var io = S.outlets.filter(function (x) { return String(x.id) === String(iv).trim(); })[0];
-      if (!io) return toast("Charger tidak ditemukan");
-      if (!io.is_available || S.busy[io.id]) return toast("Charger tidak tersedia");
-      S.outlet = io.id; S.page = "bayar"; S.sig = ""; return render();
+      if (openCharger(iv)) { S.sig = ""; return render(); }
+      return;
     }
     if (act === "pwform") { S.pwOpen = !S.pwOpen; S.np1 = ""; S.np2 = ""; S.sig = ""; return render(); }
     if (act === "pwsave") {
@@ -755,10 +799,9 @@ async function boot() {
   await load();
   await loadProfile();
   if (PEND) {
-    var po = S.outlets.filter(function (x) { return String(x.id) === String(PEND); })[0]; PEND = null;
+    var pid = PEND; PEND = null;
     try { history.replaceState(null, "", location.pathname); } catch (e) {}
-    if (!po) toast("Charger tidak ditemukan"); else if (!po.is_available || S.busy[po.id]) toast("Charger sedang tidak tersedia");
-    else { S.outlet = po.id; S.tab = "charge"; S.page = "bayar"; }
+    openCharger(pid);
   }
   S.sig = ""; render();
 }
