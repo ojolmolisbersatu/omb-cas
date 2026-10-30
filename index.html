@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>OMB Service</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#F7F7F2">
+<meta name="theme-color" content="#F7F8F5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="OMB">
@@ -13,8 +13,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
 <style>
-:root{color-scheme:light;--paper:#F7F7F2;--ink:#171717;--volt:#D9FF64;--line:#E5E5DF;--mute:#77776F;--white:#FFFFFF;
---bg:var(--paper);--card:var(--white);--acc:var(--ink);--accink:var(--ink);--blue:var(--ink);--ok:#3F6B00;--bad:#C62828;--warn:#B7791F;--grad:var(--ink)}
+:root{color-scheme:light;--paper:#F7F8F5;--ink:#183B56;--volt:#D9FF64;--line:#DCE6EC;--mute:#6B8091;--white:#FFFFFF;--mist:#DCEAF2;--sage:#B8D5C0;--red:#EF4444;--bg:var(--paper);--card:var(--white);--acc:var(--ink);--accink:var(--ink);--blue:var(--ink);--ok:#2E7D4F;--bad:#EF4444;--warn:#B7791F;--grad:var(--ink)}
 *{box-sizing:border-box}
 html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;overflow-x:hidden}
 body{margin:0;background:var(--paper);color:var(--ink);font:500 16px/1.5 Manrope,system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
@@ -98,15 +97,47 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .scan i{position:absolute;inset:14%;border:3px solid var(--volt);border-radius:16px}
 .scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.qerr{position:absolute;left:0;right:0;bottom:12px;padding:0 20px;text-align:center;font-size:14px;color:var(--white);z-index:2}
 .mapbar{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;color:var(--mute)}
-.map{height:300px;border-radius:16px;background:#EDEDE6;overflow:hidden;border:1px solid var(--line)}
+.map{height:300px;border-radius:16px;background:#DCEAF2;overflow:hidden;border:1px solid var(--line)}
 .sheet{background:var(--white);border-radius:16px;padding:16px;margin:-40px 12px 0;position:relative;border:1px solid var(--ink)}
 .ch{display:flex;align-items:center;gap:12px;padding:12px;background:var(--white);border:1px solid var(--line);border-radius:14px;margin:8px 0;width:100%;color:var(--ink);text-align:left}
 .ch.sel{border-color:var(--ink);background:var(--volt)}.ch .st{margin-left:auto;font-size:13px;font-weight:700}
-.mask{position:fixed;inset:0;background:rgba(23,23,23,.6);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}
+.mask{position:fixed;inset:0;background:rgba(24,59,86,.6);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}
 .dlg{background:var(--white);border-radius:16px;padding:22px;max-width:360px;width:100%;text-align:center;border:1px solid var(--ink)}
 .pin{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--volt);display:flex;align-items:center;justify-content:center;border:3px solid var(--white);font-size:16px}.map .leaflet-container{height:100%;font:inherit}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (min-width:700px){main{padding-top:32px}.nav{left:50%;right:auto;width:520px;transform:translateX(-50%);border:1px solid var(--line);border-bottom:0;border-radius:16px 16px 0 0}}
+
+/* Urban Eco Blue overrides */
+body{color:var(--ink)}
+button{border-color:var(--ink);border-radius:12px}
+button.acc,.btn.acc{background:var(--volt);color:var(--ink);border-color:var(--volt)}
+button.ghost,.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+button.bad{background:var(--red);color:var(--white);border-color:var(--red)}
+input:focus,select:focus{border-color:var(--ink);outline:0;box-shadow:0 0 0 3px var(--mist)}
+.chips button.sel{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.tag{background:var(--mist);border-color:transparent;color:var(--ink)}
+.tag.paid{background:var(--sage);color:#1F5A38;border-color:transparent}
+.tag.run{background:var(--ink);color:var(--volt)}
+.tag.unpaid{background:#FDECEC;color:var(--red);border-color:transparent}
+.nav{border-top:1px solid var(--line)}
+.nav button.on{background:var(--mist);color:var(--ink)}
+.seg button.sel,.admin-menu button.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.coinbox .n{color:var(--white)}
+.coinbox small:first-child{color:var(--volt);opacity:1}
+.coinbox button{background:var(--volt)!important;color:var(--ink)!important;border-color:var(--volt)}
+.hero{background:var(--mist);color:var(--ink)}.hero p{color:var(--mute)}
+.pill{background:var(--volt);border:0}
+.brand svg{background:var(--mist)}
+.mi{background:var(--mist);border-color:transparent}.mi.b{background:var(--sage);border-color:transparent}
+.av{background:var(--mist);color:var(--ink)}
+.ch.sel{background:var(--mist);border-color:var(--ink)}
+.sheet,.dlg{border-color:var(--line)}
+.warnbox{background:var(--mist);border:1px solid var(--line)}
+.warnbox .mute{color:var(--mute);opacity:1}
+.warnbox button.acc{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.bar i,.stripe i{background:var(--ink)}.bar,.stripe{background:var(--mist)}
+.scan i{border-color:var(--volt)}
+.pos{color:var(--ok)}.neg{color:var(--red)}
 </style>
 </head>
 <body>
