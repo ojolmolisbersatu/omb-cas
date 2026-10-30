@@ -149,7 +149,7 @@ function menuBtn(i, t, sub, act, v, b) { return '<button class="menu" data-act="
 function homeView() {
   return '<div style="margin:4px 0 12px"><div class="mute">Halo,</div><p class="hello">' + esc(nm()) + '</p><div class="mute">Selamat beraktivitas, semoga selalu lancar!</div></div>' + coinCard() + pendTop() +
     menuBtn("scan", "Scan QR", "Langsung mulai pengisian", "page", "scan") + menuBtn("pin", "Pilih Lokasi", "Lihat daftar lokasi terdekat", "page", "map", 1) +
-    '<div class="card" style="background:var(--volt);color:var(--ink);border:1px solid var(--ink)"><b>Nikmati pengalaman ngecas yang lebih mudah dengan OMB Service</b></div>';
+    '<div class="card" style="background:var(--mist);color:var(--ink);border:0"><b>Nikmati pengalaman ngecas yang lebih mudah dengan OMB Service</b></div>';
 }
 function scanView() {
   return topbar("Scan QR Lokasi", "page", "home") + '<div class="scan"><video id="qv" autoplay playsinline muted></video><i></i><div id="qerr" class="qerr"></div></div>' +
@@ -166,7 +166,7 @@ function initMap() {
 }
 function mapView() {
   var k = lokasiStat();
-  return topbar("Pilih Lokasi", "page", "home") + '<div class="mapbar">' + ic("search") + ' Cari lokasi, nama...</div>' + (LOKASI.lat != null ? '<div class="map" id="lmap"></div>' : '<div class="map"><svg viewBox="0 0 300 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><path d="M-10 90L310 140M60 -10L110 310M-10 230L310 200M220 -10L180 310" stroke="#E5E5DF" stroke-width="12" fill="none"/><g transform="translate(150 150)"><circle r="22" fill="#171717" opacity=".2"/><circle r="11" fill="#171717"/><path d="M-3 -6L-6 1h4l-1 5 6-7h-4z" fill="#D9FF64"/></g></svg></div>') +
+  return topbar("Pilih Lokasi", "page", "home") + '<div class="mapbar">' + ic("search") + ' Cari lokasi, nama...</div>' + (LOKASI.lat != null ? '<div class="map" id="lmap"></div>' : '<div class="map"><svg viewBox="0 0 300 300" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><path d="M-10 90L310 140M60 -10L110 310M-10 230L310 200M220 -10L180 310" stroke="#FFFFFF" stroke-width="12" fill="none"/><g transform="translate(150 150)"><circle r="22" fill="#183B56" opacity=".2"/><circle r="11" fill="#183B56"/><path d="M-3 -6L-6 1h4l-1 5 6-7h-4z" fill="#D9FF64"/></g></svg></div>') +
     '<div class="sheet"><b>' + esc(LOKASI.nama) + '</b><div class="mute">' + k.a + ' tersedia · ' + esc(LOKASI.jam) + '</div><button class="big acc" style="margin-top:10px" data-act="page" data-v="detail">Lihat Detail</button>' +
     (LOKASI.lat != null ? '<a class="btn ghost" style="margin-top:8px;padding:12px;font-size:16px" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + LOKASI.lat + "," + LOKASI.lng + '">Petunjuk arah</a>' : "") + '</div>';
 }
@@ -176,7 +176,7 @@ function detailView() {
     var u = !!S.busy[x.id], ok = x.is_available && !u;
     return '<button class="ch' + (S.outlet === x.id ? " sel" : "") + '" data-act="outlet" data-v="' + x.id + '"' + (ok ? "" : " disabled") + '><span class="mi">' + ic("bolt") + '</span><b>' + esc(x.name) + '</b><span class="st" style="color:' + (u ? "var(--blue)" : ok ? "var(--ok)" : "var(--bad)") + '">' + (u ? "Terisi" : ok ? "Tersedia" : "Tidak tersedia") + '</span></button>';
   }).join("");
-  return topbar("Detail Lokasi", "page", "map") + '<div class="card" style="background:' + (LOKASI.foto ? "rgba(23,23,23,.55) url(" + String(LOKASI.foto).replace(/[()'"\s]/g, "") + ") center/cover;background-blend-mode:multiply" : "var(--ink)") + ';color:#fff;border:0;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end"><b style="font-size:20px">' + esc(LOKASI.nama) + '</b><div>' + esc(LOKASI.alamat) + ' · ' + esc(LOKASI.jam) + '</div></div>' +
+  return topbar("Detail Lokasi", "page", "map") + '<div class="card" style="background:' + (LOKASI.foto ? "rgba(24,59,86,.55) url(" + String(LOKASI.foto).replace(/[()'"\s]/g, "") + ") center/cover;background-blend-mode:multiply" : "var(--ink)") + ';color:#fff;border:0;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end"><b style="font-size:20px">' + esc(LOKASI.nama) + '</b><div>' + esc(LOKASI.alamat) + ' · ' + esc(LOKASI.jam) + '</div></div>' +
     '<div class="chips"><span class="tag paid">' + k.a + ' Tersedia</span><span class="tag run">' + k.u + ' Terisi</span><span class="tag">' + k.x + ' Nonaktif</span></div>' +
     (LOKASI.fasilitas.length ? '<div class="mute">Fasilitas: ' + LOKASI.fasilitas.map(esc).join(" · ") + '</div>' : "") + '<h2>Daftar Lokasi</h2>' + list +
     '<button class="big acc" style="margin-top:12px" data-act="page" data-v="bayar"' + (selOk ? "" : " disabled") + '>Pilih Tempat</button>';
@@ -199,7 +199,7 @@ function runView(s) {
   var t0 = new Date(s.started_at || s.created_at).getTime(), el = (Date.now() - t0) / 1000, left = used > 0 && el > 0 ? Math.max(0, tg - used) / (used / el) : null, C = 2 * Math.PI * 88;
   var st = s.status === "pending" ? "Menunggu perangkat" : s.stop_requested_at ? "Menghentikan..." : "Mengisi";
   return topbar("Pengisian Berlangsung") + '<div style="text-align:center"><span class="pill"><span class="dot"></span>' + st + '</span></div>' +
-    '<div class="ring"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="#E5E5DF" stroke-width="14"/><circle cx="100" cy="100" r="88" fill="none" stroke="#171717" stroke-width="14" stroke-linecap="round" stroke-dasharray="' + (C * pct / 100) + ' ' + C + '"/></svg>' +
+    '<div class="ring"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="#D9FF64" stroke-width="14"/><circle cx="100" cy="100" r="88" fill="none" stroke="#183B56" stroke-width="14" stroke-linecap="round" stroke-dasharray="' + (C * pct / 100) + ' ' + C + '"/></svg>' +
     '<div class="c"><span style="color:var(--warn)">' + ic("bolt") + '</span><div class="num">' + poin(used) + '</div><div class="mute">Poin</div><div class="mute">dari ' + poin(tg) + ' Poin</div></div></div>' +
     devRows(s) + '<div class="card"><div class="kv" style="border:0;margin:0"><span>Durasi</span><b' + (run ? ' data-since="' + t0 + '"' : "") + '>' + mm(el) + '</b></div><div class="kv"><span>Sisa waktu (estimasi)</span><b>' + (left == null ? "—" : mm(left)) + '</b></div></div>' +
     '<div class="card"><span class="mute">Biaya aktual (perkiraan)</span><div class="num" style="font-size:28px">' + rp(estCost(used)) + '</div></div>' + coinCard() + pendTop() +
