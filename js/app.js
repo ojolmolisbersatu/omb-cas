@@ -7,14 +7,23 @@ var API = SUPABASE_URL + "/functions/v1/charge-api";
 var PEND = new URLSearchParams(location.search).get("charger"); // dari QR charger: ?charger=<id colokan>
 var sb = supabase.createClient(SUPABASE_URL, ANON_KEY);
 var $app = document.getElementById("app");
-var S = { page: "home", sub: null, stopDlg: false, user: null, admin: false, tab: "charge", adminMenu: "sessions", outlets: [], tariff: 0, maxWh: 5000, sess: null, all: [], names: {}, outlet: 1, sig: "", profile: null, busy: {}, tgt: null, custom: "", pwOpen: false, np1: "", np2: "", members: null, msq: "", unl: null, asq: "", coin: null, topup: null, tops: [], unpaid: [], ledger: [], rtab: "semua", topupOpen: false, tamt: 0, tsq: "", exFrom: "", exTo: "", exUser: "", pwShow: {}, wallets: {} };
+var S = { page: "home", sub: null, stopDlg: false, user: null, admin: false, tab: "charge", adminMenu: "sessions", outlets: [], tariff: 0, maxWh: 5000, sess: null, all: [], names: {}, outlet: 1, sig: "", profile: null, busy: {}, tgt: null, custom: "", mode: "poin", rp: 0, pwOpen: false, np1: "", np2: "", members: null, msq: "", unl: null, asq: "", coin: null, topup: null, tops: [], unpaid: [], ledger: [], rtab: "semua", topupOpen: false, tamt: 0, tsq: "", exFrom: "", exTo: "", exUser: "", pwShow: {}, wallets: {} };
 (function () { var n = new Date(); S.exTo = ymd(n); S.exFrom = ymd(new Date(n.getFullYear(), n.getMonth(), 1)); })();
 
 function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function rp(n) { return "Rp" + Number(n || 0).toLocaleString("id-ID"); }
 // Hasil selalu dalam Wh (bilangan bulat), karena server dan Shelly memakai Wh.
+var MAX_RP = 12500; // batas nominal per pengisian (Rp)
+// Nominal Rp -> Wh (dibulatkan ke bawah agar biaya tidak melebihi nominal)
+function rpToWh(r) {
+  if (!(r > 0) || !(S.tariff > 0)) return 0;
+  var wh = Math.floor(r * 1000 / S.tariff);
+  while (wh > 0 && estCost(wh) > r) wh--;
+  return wh;
+}
 function tgtVal() {
   var t;
+  if (S.mode === "rp") return S.rp > 0 && S.rp <= MAX_RP ? rpToWh(S.rp) : 0;
   if (S.tgt === "custom") {
     var p = parseFloat(String(S.custom).replace(",", "."));
     t = isFinite(p) ? Math.round(p * 1000) : 0;
@@ -183,14 +192,20 @@ function detailView() {
 }
 function estHtml() {
   var c = estCost(tgtVal()), b = S.coin || 0, f = function (n) { return Number(n).toLocaleString("id-ID"); };
-  return '<div class="kv" style="border:0;margin:0"><span>Perkiraan biaya</span><b>' + rp(c) + '</b></div><div class="kv"><span>Saldo Coin</span><b>' + f(b) + ' Coin</b></div><div class="kv"><span>' + (b >= c ? "Perkiraan sisa saldo" : "Kekurangan via QRIS") + '</span><b>' + (b >= c ? f(b - c) + " Coin" : rp(c - b)) + '</b></div>';
+  return (S.mode === "rp" && S.rp > MAX_RP ? '<div class="neg" style="font-weight:700;margin-bottom:6px">Maksimal ' + rp(MAX_RP) + '</div>' : "") + '<div class="kv" style="border:0;margin:0"><span>Perkiraan biaya</span><b>' + rp(c) + '</b></div>' + (S.mode === "rp" && c ? '<div class="kv"><span>Setara</span><b>' + poin(tgtVal()) + ' Poin</b></div>' : "") + '<div class="kv"><span>Saldo Coin</span><b>' + f(b) + ' Coin</b></div><div class="kv"><span>' + (b >= c ? "Perkiraan sisa saldo" : "Kekurangan via QRIS") + '</span><b>' + (b >= c ? f(b - c) + " Coin" : rp(c - b)) + '</b></div>';
 }
 function bayarView() {
   var o = S.outlets.filter(function (x) { return x.id === S.outlet; })[0] || {};
   var chips = [1000, 2500, 5000].map(function (n) { return '<button class="' + (S.tgt === n ? "sel" : "") + '" data-act="tgt" data-v="' + n + '">' + (n / 1000).toLocaleString("id-ID") + ' Poin</button>'; }).join("");
+  var rpChips = [2500, 5000, 10000].map(function (n) { return '<button class="' + (S.rp === n ? "sel" : "") + '" data-act="rpchip" data-v="' + n + '">' + rp(n) + '</button>'; }).join("");
+  var seg = '<div class="seg">' + [["poin", "Poin"], ["rp", "Nominal (Rp)"]].map(function (x) { return '<button class="' + (S.mode === x[0] ? "sel" : "") + '" data-act="pmode" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join("") + '</div>';
+  var isi = S.mode === "rp" ?
+    '<input id="cr" type="number" inputmode="numeric" step="100" min="100" max="' + MAX_RP + '" placeholder="Ketik nominal (Rp), maks ' + MAX_RP.toLocaleString("id-ID") + '" value="' + (S.rp || "") + '">' +
+    '<div class="chips row" style="margin:10px 0">' + rpChips + '</div><div class="mute">Maksimal ' + rp(MAX_RP) + ' per pengisian. 1 Poin = ' + rp(S.tariff) + '</div>' :
+    '<input id="cp" type="number" inputmode="decimal" step="0.01" min="0.01" max="' + (S.maxWh / 1000) + '" placeholder="Masukkan jumlah Poin (maks ' + (S.maxWh / 1000).toLocaleString("id-ID") + ')" value="' + esc(S.tgt === "custom" ? S.custom : "") + '">' +
+    '<div class="chips row" style="margin:10px 0">' + chips + '</div><div class="mute">1 Poin = ' + rp(S.tariff) + '</div>';
   return topbar("Pembayaran", "page", "detail") + '<div class="menu" style="margin-top:0"><span class="mi">' + ic("bolt") + '</span><span class="t"><b>' + esc(LOKASI.nama) + '</b><small>' + esc(o.name || "") + '</small></span></div>' +
-    '<h2>Jumlah Pengisian</h2><input id="cp" type="number" inputmode="decimal" step="0.01" min="0.01" max="' + (S.maxWh / 1000) + '" placeholder="Masukkan jumlah Poin (maks ' + (S.maxWh / 1000).toLocaleString("id-ID") + ')" value="' + esc(S.tgt === "custom" ? S.custom : "") + '">' +
-    '<div class="chips row" style="margin:10px 0">' + chips + '</div><div class="mute">1 Poin = ' + rp(S.tariff) + '</div>' +
+    '<h2>Jumlah Pengisian</h2>' + seg + isi +
     '<h2>Pembayaran</h2><div class="card mute">Saat sesi selesai, Saldo Coin dipotong lebih dulu. Kekurangannya dibayar lewat QRIS.</div><div class="card" id="estbox">' + estHtml() + '</div>' +
     '<button id="startBtn" class="big acc" data-act="start"' + (tgtVal() ? "" : " disabled") + '>⚡ Mulai Pengisian</button>';
 }
@@ -744,6 +759,8 @@ document.addEventListener("click", async function (e) {
       alert("Password " + nm + " sudah direset.\n\nPassword baru: " + np + "\n\nSampaikan ke anggota, lalu minta segera menggantinya lewat tombol Password.");
       return;
     }
+    if (act === "pmode") { S.mode = v === "rp" ? "rp" : "poin"; S.tgt = null; S.custom = ""; S.rp = 0; S.sig = ""; return render(); }
+    if (act === "rpchip") { var rv = parseInt(v, 10); S.rp = S.rp === rv ? 0 : rv; S.sig = ""; return render(); }
     if (act === "tgt") {
       var nv = v === "custom" ? "custom" : parseInt(v, 10);
       S.tgt = (S.tgt === nv) ? null : nv; // tekan lagi = batal pilih
@@ -753,12 +770,13 @@ document.addEventListener("click", async function (e) {
       var o2 = S.outlets.filter(function (x) { return x.id === S.outlet; })[0];
       if (!o2 || !o2.is_available) return toast("Colokan tidak tersedia");
       if (S.busy[o2.id]) return toast("Colokan sedang dipakai");
+      if (S.mode === "rp" && S.rp > MAX_RP) return toast("Maksimal " + rp(MAX_RP));
       var tw = tgtVal();
-      if (!tw) return toast("Pilih atau isi jumlah poin dulu");
+      if (!tw) return toast("Pilih atau isi jumlah dulu");
       if (tw > S.maxWh) return toast("Maksimal " + poin(S.maxWh) + " poin");
       b.disabled = true;
       await api("/session", { outlet_id: S.outlet, target_wh: tw });
-      S.tgt = null; S.custom = ""; S.page = "home";
+      S.tgt = null; S.custom = ""; S.rp = 0; S.page = "home";
       toast("Menunggu perangkat menyalakan colokan");
     }
     if (act === "stop") {
@@ -834,6 +852,7 @@ async function boot() {
 document.addEventListener("input", function (e) {
   var id = e.target.id;
   if (id === "cp") { S.custom = e.target.value; S.tgt = "custom"; document.querySelectorAll(".chips .sel").forEach(function (c) { c.classList.remove("sel"); }); var sb = document.getElementById("startBtn"); if (sb) sb.disabled = !tgtVal(); var eb = document.getElementById("estbox"); if (eb) eb.innerHTML = estHtml(); }
+  if (id === "cr") { S.rp = parseInt(e.target.value, 10) || 0; document.querySelectorAll(".chips button").forEach(function (c) { c.classList.toggle("sel", parseInt(c.dataset.v, 10) === S.rp); }); var sbtn = document.getElementById("startBtn"); if (sbtn) sbtn.disabled = !tgtVal(); var ebox = document.getElementById("estbox"); if (ebox) ebox.innerHTML = estHtml(); }
   if (id === "ta") { S.tamt = parseInt(e.target.value, 10) || 0; document.querySelectorAll(".chips button").forEach(function (c) { c.classList.toggle("sel", parseInt(c.dataset.v, 10) === S.tamt); }); var tb = document.getElementById("topupBtn"); if (tb) tb.disabled = !(S.tamt >= 5000 && S.tamt <= 1000000); }
   if (id === "ts") { S.tsq = e.target.value; var tl = document.getElementById("tlist"); if (tl) tl.innerHTML = tsRows(); }
   if (id === "ef") S.exFrom = e.target.value;
