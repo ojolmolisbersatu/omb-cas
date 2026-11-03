@@ -71,7 +71,7 @@ async function api(path, body) {
     body: JSON.stringify(body || {})
   });
   var j = await r.json().catch(function () { return {}; });
-  if (!r.ok) throw new Error(j.message || j.error || "Gagal (" + r.status + ")");
+  if (!r.ok) throw new Error(j.message || (j.error === "SERVER_ERROR" ? "Terjadi kesalahan di server, coba lagi" : j.error === "Unauthorized" ? "Sesi habis, silakan login ulang" : j.error) || "Gagal (" + r.status + ")");
   return j;
 }
 
@@ -152,7 +152,9 @@ async function loadLokasi() {
 function seenId() { try { return localStorage.getItem("omb_seen"); } catch (e) { return null; } }
 function topbar(t, act, v) { return '<div class="top">' + (act ? '<button data-act="' + act + '" data-v="' + (v || "") + '" aria-label="Kembali">' + ic("back") + '</button>' : '<i></i>') + '<b>' + t + '</b><i></i></div>'; }
 function mm(sec) { sec = Math.max(0, Math.round(sec)); return [sec / 3600 | 0, (sec % 3600) / 60 | 0, sec % 60].map(function (n) { return String(n).padStart(2, "0"); }).join(":"); }
-function estCost(wh) { return Math.ceil(wh * S.tariff / 1000 / 100) * 100; }
+// Tarif per 1 Poin (1.000 Wh). Tanpa pembulatan. Pemakaian di bawah MIN_BILL_WH (0,02 Poin) belum dihitung.
+var MIN_BILL_WH = 20;
+function estCost(wh) { wh = Number(wh || 0); return wh < MIN_BILL_WH ? 0 : wh * S.tariff / 1000; }
 function lokasiStat() { var k = { a: 0, u: 0, x: 0 }; S.outlets.forEach(function (o) { if (S.busy[o.id]) k.u++; else if (o.is_available) k.a++; else k.x++; }); return k; }
 function menuBtn(i, t, sub, act, v, b) { return '<button class="menu" data-act="' + act + '" data-v="' + v + '"><span class="mi' + (b ? " b" : "") + '">' + ic(i) + '</span><span class="t"><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : "") + '</span>' + ic("chev") + '</button>'; }
 function homeView() {
@@ -210,7 +212,7 @@ function bayarView() {
     '<button id="startBtn" class="big acc" data-act="start"' + (tgtVal() ? "" : " disabled") + '>⚡ Mulai Pengisian</button>';
 }
 function runView(s) {
-  var run = s.status === "running", used = run ? Math.max(0, (s.last_wh || s.start_wh) - s.start_wh) : 0, tg = Number(s.target_wh || 0), pct = tg ? Math.min(100, used / tg * 100) : 0;
+  var run = s.status === "running", used0 = run ? Math.max(0, (s.last_wh || s.start_wh) - s.start_wh) : 0, tg = Number(s.target_wh || 0), used = tg ? Math.min(used0, tg) : used0, pct = tg ? Math.min(100, used / tg * 100) : 0;
   var t0 = new Date(s.started_at || s.created_at).getTime(), el = (Date.now() - t0) / 1000, left = used > 0 && el > 0 ? Math.max(0, tg - used) / (used / el) : null, C = 2 * Math.PI * 88;
   var st = s.status === "pending" ? "Menunggu perangkat" : s.stop_requested_at ? "Menghentikan..." : "Mengisi";
   return topbar("Pengisian Berlangsung") + '<div style="text-align:center"><span class="pill"><span class="dot"></span>' + st + '</span></div>' +
@@ -582,7 +584,7 @@ function sessRow(x) {
   return '<div class="s"><div class="row sp"><b>' + esc(S.names[x.member_id] || "Member " + x.member_id) + '</b><span class="tag ' + (x.status === "running" ? "run" : pay) + '">' + esc(x.payment_status === "unpaid" ? "belum bayar" : x.status) + '</span></div>' +
     '<div class="mute">Colokan ' + x.outlet_id + ' - ' + dt(x.created_at) + '</div>' +
     '<div>' + (x.used_wh != null ? poin(x.used_wh) + ' Poin, ' + rp(x.amount_idr) : 'Target ' + poin(x.target_wh) + ' Poin') +
-    (x.status === "running" ? ' <span class="mute">(terakhir ' + poin((x.last_wh || x.start_wh) - x.start_wh) + ' Poin)</span>' : "") + '</div>' + tagih +
+    (x.status === "running" ? ' <span class="mute">(terakhir ' + poin(Math.min((x.last_wh || x.start_wh) - x.start_wh, x.target_wh || Infinity)) + ' Poin)</span>' : "") + '</div>' + tagih +
     (x.stop_reason ? '<div class="mute">Berhenti: ' + esc(x.stop_reason) + '</div>' : "") +
     (btn ? '<div class="row" style="margin-top:6px;flex-wrap:wrap">' + btn + '</div>' : "") + '</div>';
 }
